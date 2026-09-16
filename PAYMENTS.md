@@ -6,11 +6,11 @@ Unlock is **license-key only**. There is no “I paid — unlock” honor button
 
 ---
 
-## 1. Sell $0.99 lifetime unlock (required)
+## 1. Sell $2.99 lifetime unlock (required)
 
-Prefer **Stripe Payment Link** at $0.99 (better net than Gumroad at this price). Gumroad / Lemon Squeezy also work.
+Prefer **Stripe Payment Link** at $2.99 (better net than Gumroad at this price). Gumroad / Lemon Squeezy also work.
 
-1. Create a product: **MetaGone Lifetime Unlock** — price **$0.99** (one-time).
+1. Create a product: **MetaGone Lifetime Unlock** — price **$2.99** (one-time).
 2. Deliver **license keys** after purchase:
    - Upload codes from **`KEYS.PRIVATE.md` on the operator machine only** (never commit this file; never put it in the public repo).
    - Format: `IB-META-XXXX-XXXX`
@@ -72,7 +72,7 @@ git add -A && git commit -m "Update MetaGone config / keys" && git push origin m
 
 ## Free vs unlocked
 
-| | Free | Unlocked ($0.99) |
+| | Free | Unlocked ($2.99) |
 |--|------|------------------|
 | Scrubs | 1 | Unlimited |
 | Batch | No | Yes |

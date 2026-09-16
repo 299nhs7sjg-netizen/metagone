@@ -2,7 +2,7 @@
 
 **Strip GPS, camera, and AI (C2PA) tags from photos — then download a one-page proof of what was removed.**
 
-Price: **$0.99** lifetime unlock via license key.  
+Price: **$2.99** lifetime unlock via license key.  
 Private: photos never leave your browser. Hosted as a static site (GitHub Pages).
 
 ## Features
@@ -11,7 +11,7 @@ Private: photos never leave your browser. Hosted as a static site (GitHub Pages)
 2. Inspect detected metadata (GPS, camera, software, dates, XMP/C2PA hints)
 3. Scrub on export — canvas rewrite strips EXIF/XMP as completely as practical in-browser
 4. Download a **proof slip** (fields found → removed, timestamp, SHA-256 hashes)
-5. **Free:** 1 scrub + watermarked report · **Unlock $0.99:** batch + clean report + no ads
+5. **Free:** 1 scrub + watermarked report · **Unlock $2.99:** batch + clean report + no ads
 
 ## Files
 

@@ -31,10 +31,10 @@
 
   const CFG = (typeof window !== "undefined" && window.METAGONE_CONFIG) || {};
   const PLACEHOLDER_ADS = {
-    top: "<strong>Sponsored</strong> — Scrub without ads. Unlock MetaGone lifetime for $0.99 → clean proof slips, batch scrub.",
-    mid: "<strong>FakeSponsor Cloud</strong> — Upload photos to “strip EXIF.” Or stay private with MetaGone Unlock ($0.99).",
-    scrub: "<strong>Batch scrub — Unlock MetaGone $0.99</strong><br />Clean proof slips. Unlimited files. One license key after checkout.",
-    footer: "<strong>Sponsored · MetaGone Unlock</strong> — Kill ads + watermark with one $0.99 license key from the store."
+    top: "<strong>Sponsored</strong> — Scrub without ads. Unlock MetaGone lifetime for $2.99 → clean proof slips, batch scrub.",
+    mid: "<strong>FakeSponsor Cloud</strong> — Upload photos to “strip EXIF.” Or stay private with MetaGone Unlock ($2.99).",
+    scrub: "<strong>Batch scrub — Unlock MetaGone $2.99</strong><br />Clean proof slips. Unlimited files. One license key after checkout.",
+    footer: "<strong>Sponsored · MetaGone Unlock</strong> — Kill ads + watermark with one $2.99 license key from the store."
   };
 
   let items = [];
@@ -402,7 +402,7 @@
     if (!unlocked && items.length >= 1) {
       openUnlockModal();
       els.unlockError.hidden = false;
-      els.unlockError.textContent = "Free tier: 1 photo. Unlock $0.99 for batch.";
+      els.unlockError.textContent = "Free tier: 1 photo. Unlock $2.99 for batch.";
       return;
     }
 
@@ -564,7 +564,7 @@
     text += "Photos never left this device.\n";
 
     const wmOverlay = watermark
-      ? '<div class="wm-overlay">MetaGone Free · Unlock $0.99</div>'
+      ? '<div class="wm-overlay">MetaGone Free · Unlock $2.99</div>'
       : "";
 
     const html =
@@ -588,7 +588,7 @@
     if (!unlocked && items.length > 1) {
       openUnlockModal();
       els.unlockError.hidden = false;
-      els.unlockError.textContent = "Batch scrub requires unlock ($0.99).";
+      els.unlockError.textContent = "Batch scrub requires unlock ($2.99).";
       return;
     }
 
