@@ -7,6 +7,7 @@
   "use strict";
 
   const STORAGE_KEY = "metagone_unlocked_v1";
+  const SOURCE_KEY = "metagone_unlock_src_v1";
   const FREE_USED_KEY = "metagone_free_scrub_used_v1";
   const DEMO_KEY = "IB-META-DEMO-TEST";
   /* First 15 sale keys from KEYS.PRIVATE.md + demo (?demo=1 only). */
@@ -67,7 +68,11 @@
   function isUnlocked() {
     try {
       const v = localStorage.getItem(STORAGE_KEY);
-      return !!(v && VALID_KEYS.has(normalizeKey(v)));
+      if (!v) return false;
+      const k = normalizeKey(v);
+      if (!k || k === "1") return false;
+      if (VALID_KEYS.has(k)) return true;
+      return localStorage.getItem(SOURCE_KEY) === "gumroad";
     } catch (e) {
       return false;
     }
@@ -86,14 +91,95 @@
     return freeUsed() ? 0 : 1;
   }
 
-  function setUnlocked(key) {
+  function setUnlocked(key, viaGumroad) {
     const k = normalizeKey(key);
-    if (!VALID_KEYS.has(k)) return false;
-    if (k === DEMO_KEY && !demoMode()) return false;
+    if (!k || k === "1") return false;
+    if (!viaGumroad) {
+      if (!VALID_KEYS.has(k)) return false;
+      if (k === DEMO_KEY && !demoMode()) return false;
+    }
     unlocked = true;
-    try { localStorage.setItem(STORAGE_KEY, k); } catch (e) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, k);
+      localStorage.setItem(SOURCE_KEY, viaGumroad ? "gumroad" : "seed");
+    } catch (e) {}
     refreshUnlockUI();
     return true;
+  }
+
+  async function verifyGumroadLicense(rawKey) {
+    const productId = String(CFG.productId || CFG.product_id || "").trim();
+    const permalink = String(CFG.productPermalink || CFG.product_permalink || "").trim();
+    if (!productId && !permalink) {
+      return { ok: false, message: "Product not configured for license verify." };
+    }
+    const body = new URLSearchParams();
+    if (productId) body.set("product_id", productId);
+    else body.set("product_permalink", permalink);
+    body.set("license_key", String(rawKey || "").trim());
+    const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString()
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (data && data.success === true) {
+      const p = data.purchase || {};
+      if (p.refunded || p.chargebacked || p.disputed) {
+        return { ok: false, message: "This license is no longer valid." };
+      }
+      return { ok: true, data: data };
+    }
+    return {
+      ok: false,
+      message: (data && (data.message || data.error)) || "Invalid license key. Check your purchase email and try again."
+    };
+  }
+
+  async function tryUnlock(raw) {
+    const rawStr = String(raw || "").trim();
+    const k = normalizeKey(rawStr);
+    if (!k) {
+      els.unlockError.hidden = false;
+      els.unlockError.textContent = "Paste your license key from the store receipt, then tap Apply.";
+      return false;
+    }
+    if (k === DEMO_KEY && !demoMode()) {
+      els.unlockError.hidden = false;
+      els.unlockError.textContent = "Demo key only works with ?demo=1";
+      return false;
+    }
+    if (VALID_KEYS.has(k)) {
+      if (setUnlocked(k, false)) {
+        els.unlockError.hidden = true;
+        closeUnlockModal();
+        return true;
+      }
+      els.unlockError.hidden = false;
+      els.unlockError.textContent = "Invalid license key. Check your purchase email and try again.";
+      return false;
+    }
+    if (els.applyKeyBtn) els.applyKeyBtn.disabled = true;
+    els.unlockError.hidden = false;
+    els.unlockError.textContent = "Checking license…";
+    try {
+      const result = await verifyGumroadLicense(rawStr);
+      if (result.ok && setUnlocked(k, true)) {
+        els.unlockError.hidden = true;
+        closeUnlockModal();
+        return true;
+      }
+      els.unlockError.hidden = false;
+      els.unlockError.textContent = (result && result.message) || "Invalid license key. Check your purchase email and try again.";
+      return false;
+    } catch (e) {
+      els.unlockError.hidden = false;
+      els.unlockError.textContent = "Could not verify license. Check your connection and try again.";
+      return false;
+    } finally {
+      if (els.applyKeyBtn) els.applyKeyBtn.disabled = false;
+    }
   }
 
   function demoMode() {
@@ -700,26 +786,14 @@
     if (e.target === els.unlockModal) closeUnlockModal();
   });
   els.applyKeyBtn.addEventListener("click", function () {
-    const k = normalizeKey(els.licenseKey.value);
-    if (k === DEMO_KEY && !demoMode()) {
-      els.unlockError.hidden = false;
-      els.unlockError.textContent = "Demo key only works with ?demo=1";
-      return;
-    }
-    if (setUnlocked(k)) {
-      els.unlockError.hidden = true;
-      closeUnlockModal();
-    } else {
-      els.unlockError.hidden = false;
-      els.unlockError.textContent = "Invalid license key. Check your purchase email and try again.";
-    }
+    tryUnlock(els.licenseKey && els.licenseKey.value);
   });
   els.licenseKey.addEventListener("keydown", function (e) {
     if (e.key === "Enter") els.applyKeyBtn.click();
   });
   if (els.demoUnlockBtn) {
     els.demoUnlockBtn.addEventListener("click", function () {
-      if (setUnlocked(DEMO_KEY)) closeUnlockModal();
+      if (setUnlocked(DEMO_KEY, false)) closeUnlockModal();
     });
   }
 

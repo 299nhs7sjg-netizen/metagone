@@ -3,7 +3,9 @@
  * Do NOT put license keys in this file.
  */
 window.METAGONE_CONFIG = {
-  checkoutUrl: "", // Wes pastes Stripe Payment Link, Gumroad, or Lemon Squeezy product URL
+  checkoutUrl: "https://greenlight5868.gumroad.com/l/metagone-lifetime",
+  productId: "IUKKFoyFdUrdZ3Cb0c8vGg==",
+  productPermalink: "metagone-lifetime",
   adsenseClient: "", // ca-pub-XXXX when approved
   adSlots: { top: "", mid: "", scrub: "", footer: "" }
 };
