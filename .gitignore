@@ -1,0 +1,6 @@
+KEYS.md
+KEYS.PRIVATE.md
+*.PRIVATE.md
+.seed-keys.txt
+sample-with-exif.jpg
+sample-*.jpg
