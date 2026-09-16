@@ -350,6 +350,9 @@ body > * { position: relative; z-index: 1; }
   font-size: 0.8rem;
   border-top: 1px solid var(--border);
 }
+.more-tools { flex-basis: 100%; text-align: center; margin: .15rem 0 0; font-size: .8rem; color: var(--muted); }
+.more-tools a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.more-tools a:hover { color: var(--text); }
 
 /* Ads */
 .ad-region {
