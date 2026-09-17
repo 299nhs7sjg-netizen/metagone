@@ -53,7 +53,10 @@
     metaSummary: byId("metaSummary"), fieldsBox: byId("fieldsBox"),
     reportPanel: byId("reportPanel"), reportPreview: byId("reportPreview"),
     reportWatermark: byId("reportWatermark"),
-    unlockBtn: byId("unlockBtn"), unlockLink: byId("unlockLink"), footerUnlock: byId("footerUnlock"),
+    unlockBtn: byId("unlockBtn"), unlockLink: byId("unlockLink"),
+    unlockNearExport: byId("unlockNearExport"), unlockInline: byId("unlockInline"),
+    stickyUnlock: byId("stickyUnlock"), stickyUnlockBtn: byId("stickyUnlockBtn"),
+    footerUnlock: byId("footerUnlock"), footerBuy: byId("footerBuy"),
     unlockBadge: byId("unlockBadge"), unlockModal: byId("unlockModal"), modalClose: byId("modalClose"),
     licenseKey: byId("licenseKey"), applyKeyBtn: byId("applyKeyBtn"), demoUnlockBtn: byId("demoUnlockBtn"),
     unlockError: byId("unlockError"), buyBtn: byId("buyBtn"), checkoutHint: byId("checkoutHint"),
@@ -206,13 +209,27 @@
       els.unlockBadge.textContent = "Unlocked";
       els.unlockBadge.className = "badge pro";
       els.unlockBtn.hidden = true;
+      els.unlockBtn.textContent = "Unlocked ✓";
+      els.unlockBtn.disabled = true;
       els.freeNote.hidden = true;
+      if (els.unlockInline) els.unlockInline.hidden = true;
+      if (els.stickyUnlock) els.stickyUnlock.hidden = true;
+      document.body.classList.remove("has-sticky-unlock");
+      if (els.footerUnlock) els.footerUnlock.hidden = true;
+      if (els.footerBuy) els.footerBuy.hidden = true;
       hideAllAds();
     } else {
       els.unlockBadge.textContent = "Free";
       els.unlockBadge.className = "badge free";
       els.unlockBtn.hidden = false;
+      els.unlockBtn.textContent = "Unlock $2.99";
+      els.unlockBtn.disabled = false;
       els.freeNote.hidden = false;
+      if (els.unlockInline) els.unlockInline.hidden = false;
+      if (els.stickyUnlock) els.stickyUnlock.hidden = false;
+      document.body.classList.add("has-sticky-unlock");
+      if (els.footerUnlock) els.footerUnlock.hidden = false;
+      if (els.footerBuy) els.footerBuy.hidden = false;
       const left = freeScrubsLeft();
       els.scrubsLeft.textContent = left === 1 ? "1 scrub left" : "0 scrubs left";
       showAllAds();
@@ -232,17 +249,51 @@
 
   function setupCheckout() {
     const url = (CFG.checkoutUrl || "").trim();
-    if (url) {
+    const hint = els.checkoutHint;
+    const links = document.querySelectorAll("[data-checkout]");
+    links.forEach(function (el) {
+      if (url) {
+        el.href = url;
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener");
+        el.removeAttribute("aria-disabled");
+        el.onclick = null;
+      } else {
+        el.href = "#";
+        el.setAttribute("aria-disabled", "true");
+        el.onclick = function (e) {
+          e.preventDefault();
+          if (hint) {
+            hint.hidden = false;
+            hint.style.color = "var(--danger)";
+            hint.textContent =
+              "Checkout URL not set — operator: paste Gumroad metagone-lifetime URL into config.js → checkoutUrl, then redeploy.";
+          }
+          if (els.unlockError) {
+            els.unlockError.textContent =
+              "Checkout URL not set. Operator: paste Gumroad URL into config.js → checkoutUrl, then redeploy.";
+            els.unlockError.hidden = false;
+          }
+        };
+      }
+    });
+    if (els.buyBtn && url) {
       els.buyBtn.href = url;
-      els.buyBtn.removeAttribute("aria-disabled");
-      els.checkoutHint.hidden = true;
-    } else {
-      els.buyBtn.href = "#";
-      els.buyBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        els.checkoutHint.hidden = false;
-        els.checkoutHint.textContent = "Checkout URL not set yet. Paste your Stripe / Gumroad / Lemon Squeezy link into config.js, then redeploy.";
-      });
+      els.buyBtn.setAttribute("target", "_blank");
+      els.buyBtn.setAttribute("rel", "noopener");
+    }
+    if (hint) {
+      if (url) {
+        hint.hidden = false;
+        hint.style.color = "var(--muted)";
+        hint.textContent =
+          "After checkout, your store email includes a license key. Paste it below.";
+      } else {
+        hint.hidden = false;
+        hint.style.color = "var(--danger)";
+        hint.textContent =
+          "Checkout URL not set — operator: paste Gumroad metagone-lifetime URL into config.js → checkoutUrl, then redeploy.";
+      }
     }
   }
 
@@ -778,7 +829,7 @@
   els.reportBtn.addEventListener("click", downloadReportOnly);
   els.clearBtn.addEventListener("click", clearAll);
 
-  [els.unlockBtn, els.unlockLink, els.footerUnlock].forEach(function (btn) {
+  [els.unlockBtn, els.unlockLink, els.unlockNearExport, els.stickyUnlockBtn, els.footerUnlock].forEach(function (btn) {
     if (btn) btn.addEventListener("click", openUnlockModal);
   });
   els.modalClose.addEventListener("click", closeUnlockModal);
